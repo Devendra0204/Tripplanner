@@ -1,9 +1,25 @@
-import React from 'react'
+import { GetPlaceDetails, PHOTO_REF_URL } from '@/service/GlobalApi'
+
+import React, { useEffect, useState } from 'react'
 
 function InfoSection({ trip }) {
+    const [PhotoUrl, setPhotoUrl] = useState();
+    useEffect(() => {
+        trip && GetPlacePhoto();
+    }, [trip])
+
+    const GetPlacePhoto = async () => {
+        const data = {
+            textQuery: trip?.userSelection?.location?.label
+        }
+        const result = await GetPlaceDetails(data).then(resp => {
+            const PhotoUrl = PHOTO_REF_URL.replace('{NAME}', resp.data.places[0].photos[3].name);
+            setPhotoUrl(PhotoUrl);
+        })
+    }
     return (
         <div>
-            <img src='/image.png' className='h-[340px] w-full object-cover rounded-xl' />
+            <img src={PhotoUrl} className='h-[400px] w-full object-cover rounded-xl' />
 
             <div>
                 <div className='my-5 flex flex-col gap-2'>

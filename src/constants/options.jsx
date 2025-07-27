@@ -64,7 +64,7 @@ export const AI_PROMPT = `Generate a travel plan for the following details:
 
 Respond with a valid JSON object containing two main keys:
 
-1. "hotels": An array of hotel options. Each hotel should include:
+1. "hotels": An array of 3 hotel options. Each hotel should include:
    - hotelName
    - hotelAddress
    - price

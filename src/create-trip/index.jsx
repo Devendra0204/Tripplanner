@@ -7,16 +7,38 @@ import { doc, setDoc } from 'firebase/firestore';
 import { db } from '@/service/firebaseConfig';
 import { AiOutlineLoading3Quarters } from "react-icons/ai";
 import { useNavigate } from 'react-router-dom';
+import { useGoogleLogin } from '@react-oauth/google';
+import axios from 'axios';
 
 
 
 function CreateTrip() {
     const [place, setPlace] = useState();
 
-    const [formData, setFormData] = useState([]);
+    const [formData, setFormData] = useState({});
+    const [openDailog, setOpenDailog] = useState(false);
     const [loading, setLoading] = useState(false);
 
     const navigate = useNavigate();
+    const GetUserProfile = (tokenInfo) => {
+        axios.get(` https://www.googleapis.com/oauth2/v1/userinfo?access_token=${tokenInfo?.access_token}`, {
+            headers: {
+                Authorization: `Bearer ${tokenInfo?.access_token}`,
+                Accept: 'Application/json'
+            }
+        }).then((resp) => {
+            console.log(resp);
+            localStorage.setItem('user', JSON.stringify(resp.data));
+            setOpenDailog(false);
+            OnGenerateTrip();
+        })
+    };
+
+    //Google One Tap Login Integration
+    const login = useGoogleLogin({
+        onSuccess: tokenResponse => GetUserProfile(tokenResponse),
+        onError: (error) => console.log(error)
+    });
 
     const handleInputChange = (name, value) => {
         setFormData({
@@ -26,6 +48,14 @@ function CreateTrip() {
     }
 
     const OnGenerateTrip = async () => {
+        //removing user in localstorage for testing
+        //localStorage.removeItem('user');
+        const user = localStorage.getItem('user');
+        if (!user) {
+            setOpenDailog(true);
+            return;
+
+        }
         setLoading(true);
         const FINAL_PROMPT = AI_PROMPT
             .replace('{location}', formData?.location?.label)
@@ -34,11 +64,11 @@ function CreateTrip() {
             .replace('{budget}', formData?.budget)
             .replace('{totalDays}', formData?.noOfDays)
 
-        console.log("🧠 Final Prompt:\n", FINAL_PROMPT);
+        //console.log("🧠 Final Prompt:\n", FINAL_PROMPT);
 
         try {
             const TripData = await generateTripPlan(FINAL_PROMPT); // <-- pass the prompt
-            console.log("Raw Response from Gemini:\n", TripData);
+            //console.log("Raw Response from Gemini:\n", TripData);
             await SaveAiTrip(TripData)
             // TODO: Use tripData to update your UI
         } catch (error) {
@@ -68,12 +98,12 @@ function CreateTrip() {
 
 
     useEffect(() => {
-        console.log(formData);
+        //console.log(formData);
     }, [formData])
 
     return (
-        <div className="sm:px-10 md:px-32 lg:px-64">
-            <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">
+        <div className="sm:px-10 md:px-32 lg:px-64 ">
+            <h2 className="mt-3 text-2xl md:text-3xl font-bold text-gray-900 mb-2">
                 Tell us your travel preferences 🏕 🌴
             </h2>
             <p className="text-gray-600 pt-6">
@@ -112,7 +142,7 @@ function CreateTrip() {
                                 onClick={() => handleInputChange('budget', item.title)}
                                 className={`p-4 border rounded-lg hover:shadow-lg
                                     ${formData?.budget == item.title && 'shadow-lg border-black border-3'}
-                                `}>
+    `}>
                                 <h2 className='text-2xl'>{item.icon}</h2>
                                 <h2 className="font-bold text-lg">{item.title}</h2>
                                 <h2 className="text-sm text-gray-500">{item.desc}</h2>
@@ -131,7 +161,7 @@ function CreateTrip() {
                                 onClick={() => handleInputChange('traveler', item.people)}
                                 className={`p-4 border rounded-lg hover:shadow-lg
                                     ${formData?.traveler == item.people && 'shadow-lg border-black border-3'}
-                                `}>
+    `}>
                                 <h2 className='text-2xl'>{item.icon}</h2>
                                 <h2 className="font-bold text-lg">{item.title}</h2>
                                 <h2 className="text-sm text-gray-500">{item.desc}</h2>
@@ -149,6 +179,23 @@ function CreateTrip() {
                     {loading ? <AiOutlineLoading3Quarters className='h-7 w-7 animate-spin' /> : 'Generate trip'}
                 </button>
             </div>
+            {/* Dialog for login */}
+            {openDailog && (
+                <div className="fixed inset-0 backdrop-blur-sm backdrop-brightness-50 flex justify-center items-center z-30">
+                    <div className="bg-white p-6 rounded-lg shadow-xl w-96">
+                        <h2 className="text-xl font-semibold mb-4">Login Required</h2>
+                        <p className="text-gray-700 mb-6">
+                            You must be logged in with your Google account to generate a trip plan.
+                        </p>
+                        <button
+                            onClick={() => login()}
+                            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded w-full"
+                        >
+                            Sign in with Google 🚀
+                        </button>
+                    </div>
+                </div>
+            )}
         </div >
     )
 }
