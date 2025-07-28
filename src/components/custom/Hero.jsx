@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 
 function Hero() {
     return (
-        <div className="min-h-screen flex items-center justify-center bg-indigo-200 px-4" >
+        <div className="min-h-screen flex items-center justify-center  px-4" >
             <section className="text-center max-w-2xl">
                 <h1 className="text-4xl md:text-5xl font-extrabold mb-6 text-gray-800">
                     Plan Your Perfect Trip <br />

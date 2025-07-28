@@ -33,7 +33,7 @@ function Header() {
         window.location.reload(); // or navigate to login
     };
     return (
-        <div className='bg-indigo-100 p-2 shadow-sm flex justify-between items-center'>
+        <div className='bg-indigo-50 p-2 shadow-sm flex justify-between items-center'>
             <img src="/logo.svg" />
             <div>
                 <b className='text-2xl '>TripMate.AI</b>
@@ -41,9 +41,16 @@ function Header() {
             <div>
                 {user ?
                     <div className='flex items-center gap-4'>
-                        <button className="px-4 py-2 bg-blue-600 text-white rounded-3xl hover:bg-blue-700">
-                            My Trips
-                        </button>
+                        <a href='/create-trip'>
+                            <button className="px-4 py-2 bg-blue-600 text-white rounded-3xl hover:bg-blue-700">
+                                +Create Trip
+                            </button>
+                        </a>
+                        <a href='/my-trips'>
+                            <button className="px-4 py-2 bg-blue-600 text-white rounded-3xl hover:bg-blue-700">
+                                My Trips
+                            </button>
+                        </a>
                         <div className="relative">
                             <img
                                 src={user?.picture}
@@ -72,23 +79,25 @@ function Header() {
 
             </div>
             {/* Dialog for login */}
-            {openDailog && (
-                <div className="fixed inset-0 backdrop-blur-sm backdrop-brightness-50 flex justify-center items-center z-30">
-                    <div className="bg-white p-6 rounded-lg shadow-xl w-96">
-                        <h2 className="text-xl font-semibold mb-4">Login Required</h2>
-                        <p className="text-gray-700 mb-6">
-                            You must be logged in with your Google account to generate a trip plan.
-                        </p>
-                        <button
-                            onClick={() => login()}
-                            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded w-full"
-                        >
-                            Sign in with Google 🚀
-                        </button>
+            {
+                openDailog && (
+                    <div className="fixed inset-0 backdrop-blur-sm backdrop-brightness-50 flex justify-center items-center z-30">
+                        <div className="bg-white p-6 rounded-lg shadow-xl w-96">
+                            <h2 className="text-xl font-semibold mb-4">Login Required</h2>
+                            <p className="text-gray-700 mb-6">
+                                You must be logged in with your Google account to generate a trip plan.
+                            </p>
+                            <button
+                                onClick={() => login()}
+                                className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded w-full"
+                            >
+                                Sign in with Google 🚀
+                            </button>
+                        </div>
                     </div>
-                </div>
-            )}
-        </div>
+                )
+            }
+        </div >
     )
 }
 

@@ -85,10 +85,13 @@ function CreateTrip() {
         //documentid should be unique so we are adding timestamp
         const docId = Date.now().toString()
         //user google account deatil stored in local storage when he login
-        //const user = JSON.parse(localStorage.getItem('user'));
+        const user = JSON.parse(localStorage.getItem('user'));
+
         await setDoc(doc(db, "AItrips", docId), {
+            id: docId,
             userSelection: formData,
             tripData: JSON.parse(TripData),
+            userEmail: user?.email,
         });
         setLoading(false);
         navigate('/view-trip/' + docId)
